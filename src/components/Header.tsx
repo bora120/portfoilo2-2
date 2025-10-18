@@ -12,11 +12,9 @@ import Link from 'next/link'
 import React, { useEffect, useRef, useState, useMemo, useCallback } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
 
-//
-// ─────────────────────────────
-// 💫 1. Particle Background Layer
-// ─────────────────────────────
-//
+/* ──────────────────────────────
+   ParticleLayer: 상단 캔버스 배경
+   ────────────────────────────── */
 function ParticleLayer() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const wrapperRef = useRef<HTMLDivElement>(null)
@@ -61,11 +59,11 @@ function ParticleLayer() {
     const height = 72
     ctx.clearRect(0, 0, width, height)
 
-    // 💗 핑크 계열 그라디언트
+    // 🌸 Pink gradient background
     const grad = ctx.createLinearGradient(0, 0, width, 0)
-    grad.addColorStop(0, 'rgba(244, 114, 182, 0.2)') // pink-400
-    grad.addColorStop(0.5, 'rgba(251, 113, 133, 0.18)') // rose-400
-    grad.addColorStop(1, 'rgba(253, 164, 175, 0.18)') // pink-300
+    grad.addColorStop(0, 'rgba(244,114,182,0.2)')
+    grad.addColorStop(0.5, 'rgba(251,113,133,0.18)')
+    grad.addColorStop(1, 'rgba(253,164,175,0.18)')
     ctx.fillStyle = grad
     ctx.fillRect(0, 0, width, height)
 
@@ -105,7 +103,7 @@ function ParticleLayer() {
         const d2 = dx * dx + dy * dy
         if (d2 < 90 * 90) {
           const alpha = 1 - d2 / (90 * 90)
-          ctx.strokeStyle = `rgba(244,114,182,${0.14 * alpha})` // soft pink line
+          ctx.strokeStyle = `rgba(244,114,182,${0.14 * alpha})`
           ctx.lineWidth = 1
           ctx.beginPath()
           ctx.moveTo(p.x, p.y)
@@ -117,6 +115,7 @@ function ParticleLayer() {
     requestAnimationFrame(render)
   }, [])
 
+  // 🖱 Mouse move / leave
   useEffect(() => {
     const move = (e: MouseEvent) => {
       const rect = canvasRef.current?.getBoundingClientRect()
@@ -132,6 +131,7 @@ function ParticleLayer() {
     }
   }, [])
 
+  // 📏 Resize + initial render
   useEffect(() => {
     resize()
     render()
@@ -146,11 +146,9 @@ function ParticleLayer() {
   )
 }
 
-//
-// ─────────────────────────────
-// ⌨️ 2. Command Bar
-// ─────────────────────────────
-//
+/* ──────────────────────────────
+   CommandBar: Quick Command Overlay
+   ────────────────────────────── */
 function CommandBar() {
   const router = useRouter()
   const [open, setOpen] = useState(false)
@@ -169,16 +167,19 @@ function CommandBar() {
   )
 
   const filtered = useMemo(() => {
-    if (query.trim().length < 2) return commands
-    return commands.filter((c) => c.label.includes(query.toLowerCase()))
+    const q = query.trim().toLowerCase()
+    if (q.length < 2) return commands
+    return commands.filter((c) => c.label.includes(q))
   }, [commands, query])
 
+  // ⌨️ Keyboard Shortcuts
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       const target = e.target as HTMLElement
       const typing =
         ['input', 'textarea'].includes(target.tagName.toLowerCase()) ||
         target.isContentEditable
+
       if (!open && !typing && e.key === '/') {
         e.preventDefault()
         setOpen(true)
@@ -197,10 +198,12 @@ function CommandBar() {
         }
       }
     }
+
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [open, filtered, index])
+  }, [open, filtered, index, router])
 
+  // Body scroll lock
   useEffect(() => {
     document.body.style.overflow = open ? 'hidden' : ''
   }, [open])
@@ -225,6 +228,7 @@ function CommandBar() {
             className="w-full max-w-xl rounded-2xl border border-gray-800 bg-[#0f0f11] shadow-2xl shadow-black/60"
             onMouseDown={(e) => e.stopPropagation()}
           >
+            {/* Input */}
             <div className="border-b border-gray-800 px-4 py-3">
               <input
                 autoFocus
@@ -237,6 +241,8 @@ function CommandBar() {
                 className="w-full bg-transparent outline-none text-gray-100 placeholder-gray-500"
               />
             </div>
+
+            {/* Command List */}
             <ul className="max-h-72 overflow-y-auto p-2">
               {filtered.map((cmd, i) => (
                 <li key={cmd.id}>
@@ -256,6 +262,8 @@ function CommandBar() {
                   </button>
                 </li>
               ))}
+
+              {/* Sign Out */}
               <li className="mt-2 border-t border-gray-800 pt-2">
                 <SignOutButton>
                   <button className="w-full text-left px-3 py-2 rounded-lg text-rose-300 hover:bg-rose-500/10 transition">
@@ -271,15 +279,17 @@ function CommandBar() {
   )
 }
 
-//
-// ─────────────────────────────
-// 🌸 3. Header Component (핑크 버전)
-// ─────────────────────────────
-//
+/* ──────────────────────────────
+   Header Component (Main)
+   ────────────────────────────── */
 export default function Header() {
   const pathname = usePathname()
-  const linkClass = (path: string) =>
-    pathname === path ? 'text-pink-400' : 'text-gray-400 hover:text-white'
+
+  const linkClass = useCallback(
+    (path: string) =>
+      pathname === path ? 'text-pink-400' : 'text-gray-400 hover:text-white',
+    [pathname]
+  )
 
   return (
     <header className="sticky top-0 z-50 bg-[#0b0b0c] border-b border-gray-800 shadow-sm shadow-black/30">
@@ -293,7 +303,7 @@ export default function Header() {
             href="/"
             className="text-xl font-bold tracking-tight text-white hover:text-pink-400 transition"
           >
-            GaYeon’s Portfolio
+            Main
           </Link>
 
           <div className="flex items-center gap-4 font-medium">

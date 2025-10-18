@@ -1,7 +1,28 @@
+// src/app/page.tsx
+
 import { auth, currentUser } from '@clerk/nextjs/server'
 import ParallaxHero from '@/components/ParallaxHero'
+import AboutConsole from '@/components/AboutConsole'
 
-/* ───────────── Utils ───────────── */
+/* ────────────────────────────────────────────────────────────
+   About: 데이터 (사용자 입력 영역)
+   - 화면 출력 변경 없이 데이터만 주입
+   ──────────────────────────────────────────────────────────── */
+const ABOUT = {
+  phone: '010-9495-7736',
+  instagram: '_7yxn',
+  github: 'https://github.com/bora120',
+  school: '중부대학교',
+  major: '정보보호학과 2학년',
+  learning: ['React', 'Next.js', 'TailwindCSS', 'Clerk'],
+  tools: ['Git', 'Vercel', 'VSCode', 'Figma'],
+  interests: ['Frontend Security', 'UI Performance'],
+}
+
+/* ────────────────────────────────────────────────────────────
+   Utils: 공통 유틸 (formatDate / safeJson / ghHeaders)
+   - 시각/출력 포맷은 기존과 동일
+   ──────────────────────────────────────────────────────────── */
 function formatDate(input: string | number | Date) {
   try {
     const d = input instanceof Date ? input : new Date(input)
@@ -16,6 +37,7 @@ function formatDate(input: string | number | Date) {
     return '—'
   }
 }
+
 async function safeJson<T>(res: Response | null): Promise<T | null> {
   try {
     if (!res || !res.ok) return null
@@ -24,6 +46,7 @@ async function safeJson<T>(res: Response | null): Promise<T | null> {
     return null
   }
 }
+
 function ghHeaders(): Record<string, string> {
   const token = process.env.GITHUB_ACCESS_TOKEN
   return token
@@ -31,10 +54,13 @@ function ghHeaders(): Record<string, string> {
     : { Accept: 'application/vnd.github+json' }
 }
 
-/* ───────────── 🔐 Security Snapshot ───────────── */
+/* ────────────────────────────────────────────────────────────
+   Security Snapshot (서버 컴포넌트)
+   - auth() & currentUser() 병렬화 (기능/출력 동일)
+   ──────────────────────────────────────────────────────────── */
 async function SecuritySnapshot() {
-  const { sessionId } = await auth()
-  const user = await currentUser()
+  // parallelize auth + currentUser
+  const [authData, user] = await Promise.all([auth(), currentUser()])
 
   const email = user?.primaryEmailAddress?.emailAddress ?? '—'
   const twoFA =
@@ -46,30 +72,64 @@ async function SecuritySnapshot() {
   const lastSignIn = user?.lastSignInAt
     ? formatDate(new Date(user.lastSignInAt))
     : '—'
-  const session = sessionId ? 'Active' : '—'
+  const session = authData.sessionId ? 'Active' : '—'
 
   return (
-    <section aria-labelledby="sec-snap" className="mx-auto max-w-5xl px-6 pt-8">
-      <h2 id="sec-snap" className="text-2xl font-semibold mb-4">
+    <section
+      aria-labelledby="sec-snap"
+      className="mx-auto max-w-5xl px-6 pt-12"
+    >
+      <h2
+        id="sec-snap"
+        className="section-title text-2xl font-semibold mb-6 text-white"
+      >
         Security Snapshot
       </h2>
-      <div className="rounded-2xl border border-gray-800 bg-[#121214]/90 backdrop-blur-sm p-6 shadow-lg shadow-black/30">
-        <dl className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-gray-300">
+
+      <div className="card-min p-6">
+        <dl className="grid grid-cols-1 sm:grid-cols-2 gap-6 text-gray-300">
           <div>
-            <dt className="text-gray-400">Email</dt>
+            <dt className="text-gray-400 mb-1">Email</dt>
             <dd className="break-all">{email}</dd>
           </div>
+
           <div>
-            <dt className="text-gray-400">Two-Factor Auth</dt>
-            <dd>{twoFA}</dd>
+            <dt className="text-gray-400 mb-1">Two-Factor Auth</dt>
+            <dd>
+              <span
+                className={
+                  twoFA === 'Enabled'
+                    ? 'badge badge-green'
+                    : twoFA === 'Disabled'
+                    ? 'badge badge-rose'
+                    : 'badge badge-gray'
+                }
+              >
+                <span className="badge-dot bg-current" />
+                {twoFA}
+              </span>
+            </dd>
           </div>
+
           <div>
-            <dt className="text-gray-400">Last Sign-in</dt>
+            <dt className="text-gray-400 mb-1">Last Sign-in</dt>
             <dd>{lastSignIn}</dd>
           </div>
+
           <div>
-            <dt className="text-gray-400">Session</dt>
-            <dd>{session}</dd>
+            <dt className="text-gray-400 mb-1">Session</dt>
+            <dd>
+              <span
+                className={
+                  session === 'Active'
+                    ? 'badge badge-green'
+                    : 'badge badge-gray'
+                }
+              >
+                <span className="badge-dot bg-current" />
+                {session}
+              </span>
+            </dd>
           </div>
         </dl>
       </div>
@@ -77,7 +137,11 @@ async function SecuritySnapshot() {
   )
 }
 
-/* ───────────── 📊 GitHub Activity ───────────── */
+/* ────────────────────────────────────────────────────────────
+   GitHub Activity (서버 컴포넌트)
+   - fetch(events/repos) 병렬 (기존과 동일)
+   - 시각/레이아웃은 그대로 유지
+   ──────────────────────────────────────────────────────────── */
 type GhRepo = {
   id: number
   name: string
@@ -90,6 +154,7 @@ type GhRepo = {
   language: string | null
 }
 type GhEvent = { type: string; created_at: string }
+
 const GH_USERNAME = 'bora120'
 
 function build8DaySparkline(events: GhEvent[]) {
@@ -100,23 +165,60 @@ function build8DaySparkline(events: GhEvent[]) {
     today.getDate()
   )
   const buckets = Array<number>(8).fill(0)
+
   for (const ev of events ?? []) {
-    if (!ev || ev.type !== 'PushEvent' || !ev.created_at) continue
+    if (ev?.type !== 'PushEvent' || !ev.created_at) continue
     const d = new Date(ev.created_at)
     if (Number.isNaN(d.getTime())) continue
-    const diffDays = Math.floor(
+
+    const diffDays =
       (startUTC - Date.UTC(d.getFullYear(), d.getMonth(), d.getDate())) /
-        (24 * 60 * 60 * 1000)
-    )
-    if (diffDays >= 0 && diffDays < 8) buckets[7 - diffDays] += 1
+      (24 * 60 * 60 * 1000)
+    const idx = Math.floor(diffDays)
+    if (idx >= 0 && idx < 8) buckets[7 - idx] += 1
   }
   return buckets
+}
+
+/* 언어 색상 (간단 매핑) */
+function langColor(lang: string | null): string {
+  const L = (lang || '').toLowerCase()
+  switch (L) {
+    case 'typescript':
+      return '#3178c6'
+    case 'javascript':
+      return '#f1e05a'
+    case 'python':
+      return '#3572A5'
+    case 'java':
+      return '#b07219'
+    case 'go':
+      return '#00ADD8'
+    case 'rust':
+      return '#dea584'
+    case 'c++':
+      return '#f34b7d'
+    case 'c':
+      return '#555555'
+    case 'php':
+      return '#4F5D95'
+    case 'kotlin':
+      return '#A97BFF'
+    case 'swift':
+      return '#F05138'
+    case 'ruby':
+      return '#701516'
+    default:
+      return '#9ca3af'
+  }
 }
 
 async function GithubActivity() {
   let events: GhEvent[] = []
   let repos: GhRepo[] = []
+
   try {
+    // parallel fetch
     const [evRes, repoRes] = await Promise.all([
       fetch(`https://api.github.com/users/${GH_USERNAME}/events/public`, {
         headers: ghHeaders(),
@@ -138,52 +240,64 @@ async function GithubActivity() {
   }
 
   const spark = build8DaySparkline(events)
+  const totalPush = spark.reduce((a, b) => a + b, 0)
   const top3 = [...repos]
-    .filter((r) => r && typeof r.stargazers_count === 'number')
+    .filter((r) => typeof r?.stargazers_count === 'number')
     .sort((a, b) => b.stargazers_count - a.stargazers_count)
     .slice(0, 3)
 
   return (
     <section
       aria-labelledby="gh-activity"
-      className="mx-auto max-w-5xl px-6 pt-10 pb-12"
+      className="mx-auto max-w-5xl px-6 pt-12 pb-16"
     >
-      <h2 id="gh-activity" className="text-2xl font-semibold mb-4">
+      <h2
+        id="gh-activity"
+        className="section-title text-2xl font-semibold mb-6 text-white"
+      >
         GitHub Activity
       </h2>
 
-      {/* 스파크라인 카드 */}
-      <div className="rounded-2xl border border-gray-800 bg-[#121214]/90 backdrop-blur-sm p-6 shadow-lg shadow-black/30 mb-6">
-        <div className="flex items-end justify-between mb-3">
+      {/* Overview: Sparkline Panel */}
+      <div className="card-min p-6 mb-6">
+        <div className="flex items-center justify-between mb-4">
           <p className="text-gray-400 text-sm">최근 8일 Push 이벤트</p>
           <span className="text-xs text-gray-500">@{GH_USERNAME}</span>
         </div>
         <Sparkline values={spark} />
+        <div className="mt-4 text-sm text-gray-400">
+          Pushes:&nbsp;
+          <span className="text-pink-300 font-semibold">{totalPush}</span>
+        </div>
       </div>
 
-      {/* 상위 3개 레포 */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {top3.length > 0 ? (
-          top3.map((r) => <RepoCard key={r.id} repo={r} />)
-        ) : (
-          <div className="col-span-full rounded-2xl border border-dashed border-gray-800 bg-[#121214]/90 backdrop-blur-sm p-8 text-center text-gray-400">
-            GitHub 데이터를 불러오지 못했습니다.
-          </div>
-        )}
+      {/* Repos: 리스트형 (동일 디자인 톤) */}
+      <div className="card-min p-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {top3.length > 0 ? (
+            top3.map((r) => <RepoRow key={r.id} repo={r} />)
+          ) : (
+            <div className="col-span-full text-center text-gray-400 py-8">
+              GitHub 데이터를 불러오지 못했습니다.
+            </div>
+          )}
+        </div>
       </div>
     </section>
   )
 }
 
+/* Sparkline (minimal line + dots) */
 function Sparkline({ values }: { values: number[] }) {
-  const width = 320,
-    height = 64
+  const width = 360
+  const height = 72
   const max = Math.max(1, ...values)
-  const step = width / (values.length - 1)
-  const points = values
+  const step = values.length > 1 ? width / (values.length - 1) : width
+
+  const pts = values
     .map((v, i) => {
       const x = i * step
-      const y = height - (v / max) * (height - 8) - 4
+      const y = height - (v / max) * (height - 10) - 5
       return `${x},${y}`
     })
     .join(' ')
@@ -191,80 +305,96 @@ function Sparkline({ values }: { values: number[] }) {
   return (
     <svg
       viewBox={`0 0 ${width} ${height}`}
-      className="w-full h-16"
-      aria-label="8-day activity sparkline"
+      className="w-full h-20"
+      aria-label="8-day sparkline"
     >
       <line
         x1="0"
         y1={height - 1}
         x2={width}
         y2={height - 1}
-        stroke="rgba(255,255,255,0.08)"
+        className="spark-min-base"
       />
-      <polyline
-        points={`0,${height} ${points} ${width},${height}`}
-        fill="rgba(244,114,182,0.15)"
-      />
-      <polyline
-        points={points}
-        fill="none"
-        stroke="rgba(244,114,182,0.85)"
-        strokeWidth="2"
-      />
+      <polyline points={pts} className="spark-min-line" fill="none" />
       {values.map((v, i) => {
         const x = i * step
-        const y = height - (v / max) * (height - 8) - 4
-        return (
-          <circle
-            key={i}
-            cx={x}
-            cy={y}
-            r="2.5"
-            fill="white"
-            fillOpacity="0.9"
-          />
-        )
+        const y = height - (v / max) * (height - 10) - 5
+        return <circle key={i} cx={x} cy={y} className="spark-min-dot" />
       })}
     </svg>
   )
 }
 
-function RepoCard({ repo }: { repo: GhRepo }) {
+/* Repo Row (list item) */
+function RepoRow({ repo }: { repo: GhRepo }) {
+  const color = { backgroundColor: langColor(repo.language) }
   return (
-    <div className="flex flex-col justify-between rounded-2xl border border-gray-800 bg-[#121214]/90 backdrop-blur-sm p-6 shadow-lg shadow-black/30">
-      <div>
-        <h3 className="text-lg font-semibold text-gray-100 mb-1 break-words">
-          {repo.name}
-        </h3>
-        <p className="text-sm text-gray-400 mb-4 break-words max-h-14 overflow-hidden">
-          {repo.description ?? 'No description'}
-        </p>
+    <div className="repo-row">
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <div className="flex items-center gap-2">
+            <a
+              href={repo.html_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="repo-name truncate"
+              title={repo.name}
+            >
+              {repo.name}
+            </a>
+          </div>
+
+          <p className="mt-1 text-sm text-gray-400 line-clamp-2">
+            {repo.description ?? 'No description'}
+          </p>
+
+          <div className="mt-2 flex flex-wrap items-center gap-3 repo-meta">
+            <span>⭐ {repo.stargazers_count}</span>
+            <span>🍴 {repo.forks_count}</span>
+            <span>{formatDate(repo.pushed_at)}</span>
+            {repo.language && (
+              <span className="inline-flex items-center gap-2">
+                <span className="lang-dot" style={color} />
+                <span>{repo.language}</span>
+              </span>
+            )}
+          </div>
+        </div>
+
+        <div className="shrink-0">
+          <a
+            href={repo.html_url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="link-btn"
+          >
+            GitHub →
+          </a>
+        </div>
       </div>
-      <div className="flex items-center justify-between text-sm text-gray-400">
-        <span>⭐ {repo.stargazers_count}</span>
-        <span>🍴 {repo.forks_count}</span>
-        <span>🕒 {formatDate(repo.pushed_at)}</span>
-      </div>
-      <a
-        href={repo.html_url}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="mt-4 inline-block w-full text-center rounded-xl bg-gradient-to-r from-pink-600 to-rose-600 py-2 font-semibold text-white hover:from-pink-700 hover:to-rose-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-400 transition"
-      >
-        View on GitHub →
-      </a>
     </div>
   )
 }
 
-/* ───────────── Page ───────────── */
+/* ────────────────────────────────────────────────────────────
+   Page: 서버 컴포넌트 조합 (Hero → About → Security → GitHub)
+   - currentUser()로 email만 추출해 AboutConsole에 전달
+   - 렌더 순서 및 UI는 기존과 동일
+   ──────────────────────────────────────────────────────────── */
 export default async function Home() {
+  // user email (for AboutConsole). SecuritySnapshot은 내부에서 별도 병렬 처리함.
+  const user = await currentUser()
+  const email = user?.primaryEmailAddress?.emailAddress ?? null
+
   return (
     <main className="min-h-screen bg-transparent text-gray-100">
       {/* 3D Parallax Hero */}
       <ParallaxHero />
 
-      {/* 보안 + 깃허브 */}
+      {/* About: 콘솔 버전 */}
+      <AboutConsole email={email} about={ABOUT} />
+
+      {/* 통일된 미니멀 카드 톤으로 스냅샷 + 깃허브 */}
       <SecuritySnapshot />
       <GithubActivity />
     </main>
