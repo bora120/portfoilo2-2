@@ -11,7 +11,7 @@ export default function CoursesPage() {
         {/* 상단 제목/설명 */}
         <header className="mb-10 text-center">
           <h1 className="text-4xl font-extrabold mb-4 tracking-normal">
-            Courses
+            Learning
           </h1>
           <p className="text-gray-400 max-w-2xl mx-auto leading-relaxed">
             보안, 네트워크, 개발 관련 학습 내용을 기록한 페이지입니다. 각 항목은

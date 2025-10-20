@@ -66,9 +66,9 @@ export default async function DashboardPage() {
             <StatCard
               title="프로젝트 수"
               value="—"
-              note="Repos 페이지 연동 예정"
+              note="project 페이지 연동 예정"
             />
-            <StatCard title="학습 기록" value="—" note="Courses 데이터 기준" />
+            <StatCard title="학습 기록" value="—" note="learning 데이터 기준" />
             <StatCard
               title="최근 커밋"
               value="—"
