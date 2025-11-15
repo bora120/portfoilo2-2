@@ -107,8 +107,8 @@ h1 {
 }
 
 .btn-primary {
-  @apply rounded-xl bg-gradient-to-r from-pink-600 to-rose-600 py-2 font-semibold text-white
-    hover:from-pink-700 hover:to-rose-700 focus-visible:outline-none
+  @apply rounded-xl bg-gradient-to-r from-fuchsia-400 to-rose-400 py-2 font-semibold text-white
+    hover:from-fuchsia-500 hover:to-rose-500 focus-visible:outline-none
     focus-visible:ring-2 focus-visible:ring-pink-400 transition;
 }
 
@@ -229,11 +229,6 @@ h1 {
     display: none;
   }
 }
-
-/* ──────────────────────────────
-   Neo Minimal Pink Theme
-   - Snapshot & GitHub Activity 공유 스타일
-   ────────────────────────────── */
 
 /* Section Title Pink Bar */
 .section-title {

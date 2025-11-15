@@ -2,11 +2,6 @@
 
 import { useEffect, useRef } from 'react'
 
-/**
- * 마우스 움직임에 반응하는 3D 패럴랙스 히어로 (고급화 버전)
- * - 라이브러리 없이 transform + CSS 변수로 구현
- * - 깊이감(tilt) + 조명(glow) + 인트로 애니메이션
- */
 export default function ParallaxHero() {
   const refContainer = useRef<HTMLDivElement | null>(null)
   const refLayer1 = useRef<HTMLDivElement | null>(null) // light

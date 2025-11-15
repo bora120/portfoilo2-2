@@ -222,16 +222,17 @@ async function GithubActivity() {
     const [evRes, repoRes] = await Promise.all([
       fetch(`https://api.github.com/users/${GH_USERNAME}/events/public`, {
         headers: ghHeaders(),
-        next: { revalidate: 3600 },
+        next: { revalidate: 60 }, // 1분마다 새로고침 느낌
       }),
       fetch(
         `https://api.github.com/users/${GH_USERNAME}/repos?per_page=100&sort=updated`,
         {
           headers: ghHeaders(),
-          next: { revalidate: 3600 },
+          next: { revalidate: 60 },
         }
       ),
     ])
+
     events = (await safeJson<GhEvent[]>(evRes)) ?? []
     repos = (await safeJson<GhRepo[]>(repoRes)) ?? []
   } catch {
@@ -242,8 +243,11 @@ async function GithubActivity() {
   const spark = build8DaySparkline(events)
   const totalPush = spark.reduce((a, b) => a + b, 0)
   const top3 = [...repos]
-    .filter((r) => typeof r?.stargazers_count === 'number')
-    .sort((a, b) => b.stargazers_count - a.stargazers_count)
+    .sort((a, b) => {
+      const aTime = new Date(a.pushed_at).getTime()
+      const bTime = new Date(b.pushed_at).getTime()
+      return bTime - aTime // 최신 push 순
+    })
     .slice(0, 3)
 
   return (
@@ -376,11 +380,6 @@ function RepoRow({ repo }: { repo: GhRepo }) {
   )
 }
 
-/* ────────────────────────────────────────────────────────────
-   Page: 서버 컴포넌트 조합 (Hero → About → Security → GitHub)
-   - currentUser()로 email만 추출해 AboutConsole에 전달
-   - 렌더 순서 및 UI는 기존과 동일
-   ──────────────────────────────────────────────────────────── */
 export default async function Home() {
   // user email (for AboutConsole). SecuritySnapshot은 내부에서 별도 병렬 처리함.
   const user = await currentUser()

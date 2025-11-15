@@ -12,9 +12,6 @@ import Link from 'next/link'
 import React, { useEffect, useRef, useState, useMemo, useCallback } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
 
-/* ──────────────────────────────
-   ParticleLayer: 상단 캔버스 배경
-   ────────────────────────────── */
 function ParticleLayer() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const wrapperRef = useRef<HTMLDivElement>(null)

@@ -2,9 +2,6 @@
 
 import React, { useEffect, useRef, useState, useCallback } from 'react'
 
-/* ──────────────────────────────
-   Types
-   ────────────────────────────── */
 type AboutConsoleProps = {
   email: string | null
   about: {
@@ -35,9 +32,6 @@ const SUPPORTED = [
   'help',
 ] as const
 
-/* ──────────────────────────────
-   AboutConsole Component
-   ────────────────────────────── */
 export default function AboutConsole({ email, about }: AboutConsoleProps) {
   const wrapRef = useRef<HTMLDivElement | null>(null)
   const nextId = useRef(1)
@@ -51,9 +45,6 @@ export default function AboutConsole({ email, about }: AboutConsoleProps) {
     typeof window !== 'undefined' &&
     window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
 
-  /* ────────────────
-       Helper Functions
-       ──────────────── */
   const addCmd = useCallback((text: string) => {
     setLines((prev) => [
       ...prev,
@@ -76,9 +67,6 @@ export default function AboutConsole({ email, about }: AboutConsoleProps) {
 
   useEffect(scrollToEnd, [lines.length])
 
-  /* ────────────────
-       Command Runner
-       ──────────────── */
   const runCommand = useCallback(
     (cmdRaw: string) => {
       const cmd = cmdRaw.trim().toLowerCase()
@@ -177,9 +165,6 @@ export default function AboutConsole({ email, about }: AboutConsoleProps) {
     [about, email, addCmd, addOut, clearAll]
   )
 
-  /* ────────────────
-       Helpers (links / safe values)
-       ──────────────── */
   const linkOrDash = useCallback(
     (url: string) =>
       url && url !== '—' ? (
@@ -199,9 +184,6 @@ export default function AboutConsole({ email, about }: AboutConsoleProps) {
 
   const safeVal = (v: string) => (v && v !== '—' ? v : '—')
 
-  /* ────────────────
-       Input Handler
-       ──────────────── */
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     const v = input.trim()
@@ -211,9 +193,6 @@ export default function AboutConsole({ email, about }: AboutConsoleProps) {
     setInput('')
   }
 
-  /* ────────────────
-       AutoPlay (Intro Showcase)
-       ──────────────── */
   useEffect(() => {
     if (autoScriptDone) return
 
@@ -251,9 +230,6 @@ export default function AboutConsole({ email, about }: AboutConsoleProps) {
     }
   }, [autoScriptDone, runCommand, addOut, prefersReduced])
 
-  /* ────────────────
-       Render
-       ──────────────── */
   return (
     <section
       aria-labelledby="about-console"
@@ -326,9 +302,6 @@ export default function AboutConsole({ email, about }: AboutConsoleProps) {
   )
 }
 
-/* ──────────────────────────────
-   Pills (tags for skills/tools)
-   ────────────────────────────── */
 function Pills({ items }: { items: string[] }) {
   if (!items?.length) return null
   return (
