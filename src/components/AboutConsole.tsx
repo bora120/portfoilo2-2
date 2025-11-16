@@ -36,6 +36,7 @@ export default function AboutConsole({ email, about }: AboutConsoleProps) {
   const wrapRef = useRef<HTMLDivElement | null>(null)
   const nextId = useRef(1)
   const autoplayTimer = useRef<number | null>(null)
+  const initialized = useRef(false) // 🔹 StrictMode에서 중복 실행 방지
 
   const [lines, setLines] = useState<Line[]>([])
   const [input, setInput] = useState('')
@@ -66,6 +67,25 @@ export default function AboutConsole({ email, about }: AboutConsoleProps) {
   }, [])
 
   useEffect(scrollToEnd, [lines.length])
+
+  const linkOrDash = useCallback(
+    (url: string) =>
+      url && url !== '—' ? (
+        <a
+          className="link break-all"
+          href={url}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          {url}
+        </a>
+      ) : (
+        <span className="text-gray-200">—</span>
+      ),
+    []
+  )
+
+  const safeVal = (v: string) => (v && v !== '—' ? v : '—')
 
   const runCommand = useCallback(
     (cmdRaw: string) => {
@@ -165,25 +185,6 @@ export default function AboutConsole({ email, about }: AboutConsoleProps) {
     [about, email, addCmd, addOut, clearAll]
   )
 
-  const linkOrDash = useCallback(
-    (url: string) =>
-      url && url !== '—' ? (
-        <a
-          className="link break-all"
-          href={url}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          {url}
-        </a>
-      ) : (
-        <span className="text-gray-200">—</span>
-      ),
-    []
-  )
-
-  const safeVal = (v: string) => (v && v !== '—' ? v : '—')
-
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     const v = input.trim()
@@ -194,7 +195,9 @@ export default function AboutConsole({ email, about }: AboutConsoleProps) {
   }
 
   useEffect(() => {
-    if (autoScriptDone) return
+    // 🔹 StrictMode에서 중복 실행 방지
+    if (initialized.current || autoScriptDone) return
+    initialized.current = true
 
     const script = [
       'whoami',
@@ -237,7 +240,7 @@ export default function AboutConsole({ email, about }: AboutConsoleProps) {
     >
       <h2
         id="about-console"
-        className="section-title text-2xl font-semibold mb-4 text-white"
+        className="section-title text-xl sm:text-2xl font-semibold mb-4 text-white"
       >
         About
       </h2>
