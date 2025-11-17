@@ -12,8 +12,8 @@ export default function Courses({ courses }: CoursesProps) {
 
   // 완료된 강의는 아래로 정렬
   const sortedCourses = [...courses].sort((a, b) => {
-    const ac = (a as { completed?: boolean }).completed ?? false
-    const bc = (b as { completed?: boolean }).completed ?? false
+    const ac = a.completed ?? false
+    const bc = b.completed ?? false
     return ac === bc ? 0 : ac ? 1 : -1
   })
 
@@ -23,11 +23,7 @@ export default function Courses({ courses }: CoursesProps) {
       className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
     >
       {sortedCourses.map((course) => {
-        const id = ((course as { id?: string; _id?: string }).id ??
-          (course as { id?: string; _id?: string })._id ??
-          '') as string
-
-        return <CourseCard key={id} course={course} />
+        return <CourseCard key={course.id} course={course} />
       })}
     </div>
   )
@@ -38,14 +34,8 @@ function CourseCard({ course }: { course: Course }) {
   const rawLink = typeof course.link === 'string' ? course.link.trim() : ''
   const hasLink = rawLink.length > 0 && /^(https?:)?\/\//.test(rawLink)
 
-  const completed =
-    typeof (course as { completed?: boolean }).completed === 'boolean'
-      ? ((course as { completed?: boolean }).completed as boolean)
-      : false
-
-  const id = ((course as { id?: string; _id?: string }).id ??
-    (course as { id?: string; _id?: string })._id ??
-    '') as string
+  const completed = course.completed ?? false
+  const id = course.id
 
   return (
     <article

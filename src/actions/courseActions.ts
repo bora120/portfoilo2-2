@@ -3,6 +3,7 @@
 
 import Course from '@/models/course'
 import connectMongoDB from '@/libs/mongodb'
+import type { Course as CourseType } from '@/types/course'
 
 // MongoDB에서 lean()으로 내려오는 코스 도큐먼트 타입
 type CourseDoc = {
@@ -34,7 +35,7 @@ function mapCourse(doc: CourseDoc) {
 /**
  * DB에 저장된 모든 강의(학습 항목) 가져오기
  */
-export async function getAllCourses() {
+export async function getAllCourses(): Promise<CourseType[]> {
   await connectMongoDB()
 
   const docs = await Course.find().sort({ createdAt: -1 }).lean<CourseDoc[]>()
@@ -45,7 +46,7 @@ export async function getAllCourses() {
 /**
  * 특정 강의 하나 조회
  */
-export async function getCourseById(id: string) {
+export async function getCourseById(id: string): Promise<CourseType | null> {
   await connectMongoDB()
 
   const doc = await Course.findById(id).lean<CourseDoc | null>()
