@@ -1,5 +1,7 @@
 // src/app/courses/[id]/page.tsx
 
+export const dynamic = 'force-dynamic'
+
 import Link from 'next/link'
 import { notFound, redirect } from 'next/navigation'
 import { getCourseById } from '@/actions/courseActions'
@@ -11,9 +13,9 @@ import CourseDeleteButton from '@/components/CourseDeleteButton'
 export default async function CourseDetailPage({
   params,
 }: {
-  params: Promise<{ id: string }>
+  params: { id: string }
 }) {
-  const { id: courseId } = await params
+  const { id: courseId } = params
 
   const course = await getCourseById(courseId)
 
@@ -86,10 +88,7 @@ export default async function CourseDetailPage({
 
             <div className="flex flex-col items-end gap-2">
               <div className="flex items-center gap-2">
-                <CourseCompleteToggle
-                  id={String(course.id)}
-                  completed={completed}
-                />
+                <CourseCompleteToggle id={courseId} completed={completed} />
 
                 <Link
                   href={`/courses/${courseId}/edit`}

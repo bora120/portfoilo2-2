@@ -3,6 +3,7 @@
 import Courses from '@/components/Courses'
 import type { Course } from '@/types/course'
 import { getAllCourses } from '@/actions/courseActions'
+export const dynamic = 'force-dynamic'
 
 // DB에서 강의 목록을 가져오는 서버 컴포넌트
 export default async function CoursesPage() {

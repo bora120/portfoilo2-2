@@ -3,6 +3,7 @@
 
 import Course from '@/models/course'
 import connectMongoDB from '@/libs/mongodb'
+import { revalidatePath } from 'next/cache'
 import type { Course as CourseType } from '@/types/course'
 
 // MongoDB에서 lean()으로 내려오는 코스 도큐먼트 타입
@@ -46,7 +47,7 @@ export async function getAllCourses(): Promise<CourseType[]> {
 /**
  * 특정 강의 하나 조회
  */
-export async function getCourseById(id: string): Promise<CourseType | null> {
+export async function getCourseById(id: string) {
   await connectMongoDB()
 
   const doc = await Course.findById(id).lean<CourseDoc | null>()
@@ -123,6 +124,10 @@ export async function toggleCourseCompleted(id: string) {
 
   course.completed = !course.completed
   await course.save()
+
+  // 목록 페이지와 상세 페이지 캐시 무효화
+  revalidatePath('/courses')
+  revalidatePath(`/courses/${id}`)
 }
 
 /**
