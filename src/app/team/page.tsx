@@ -63,7 +63,7 @@ const TEAM_MEMBERS: TeamMember[] = [
     bio: '테스트 케이스 작성, 버그 리포트, 레퍼런스 조사와 기능 개선 아이디어를 제안했습니다.',
     image: '/team/eunsu.png',
     github: 'https://github.com/myyonop',
-    email: 'kreideprinz913@gmail.com ',
+    email: 'kreideprinz913@gmail.com',
     portfolio: 'https://web-s-portfolio.vercel.app',
   },
 ]
