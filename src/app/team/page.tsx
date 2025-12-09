@@ -72,7 +72,7 @@ const TEAM_PROJECT: TeamProject = {
   title: 'Clerk App Project',
   description:
     '독서리뷰플랫폼을 구현한 팀 프로젝트 입니다. 로그인을 할 때 2단계 보안 인증을 적용하고, 비밀번호 강도를 분석 기능을 넣었습니다.',
-  link: 'http://xn--book-review-black-five-cq04g.vercel.app/',
+  link: 'https://book-review-black-five.vercel.app',
   image: '/team/project-preview.png',
 }
 
