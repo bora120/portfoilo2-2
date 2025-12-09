@@ -34,7 +34,7 @@ const TEAM_MEMBERS: TeamMember[] = [
     image: '/team/kayun.png',
     github: 'https://github.com/bora120',
     email: 'kayunkim0120@gmail.com',
-    portfolio: 'https://bora120.github.io/portfolio',
+    portfolio: 'https://portfoilo2-2.vercel.app',
   },
   {
     id: 2,
@@ -42,8 +42,8 @@ const TEAM_MEMBERS: TeamMember[] = [
     role: 'Backend · Data',
     bio: '데이터 구조 및 API 설계, 학습 내역 저장 로직과 서버 연동을 담당했습니다.',
     image: '/team/sumin.png',
-    github: 'https://github.com/',
-    email: 'sumin@example.com',
+    github: 'https://github.com/sumin8838',
+    email: 'dudtladl0573@naver.com',
     portfolio: 'https://example.com/sumin',
   },
   {
@@ -52,9 +52,9 @@ const TEAM_MEMBERS: TeamMember[] = [
     role: 'UI · Document',
     bio: '와이어프레임, 화면 흐름, 발표 자료 및 기술 문서를 정리했습니다.',
     image: '/team/seoyeon.png',
-    github: 'https://github.com/',
-    email: 'seoyeon@example.com',
-    portfolio: 'https://example.com/seoyeon',
+    github: 'https://github.com/westkiteS2',
+    email: 'seoyeon8513@gmail.com',
+    portfolio: 'https://webserver-portfolio-final-2025-2.vercel.app',
   },
   {
     id: 4,
@@ -62,17 +62,17 @@ const TEAM_MEMBERS: TeamMember[] = [
     role: 'QA · Research',
     bio: '테스트 케이스 작성, 버그 리포트, 레퍼런스 조사와 기능 개선 아이디어를 제안했습니다.',
     image: '/team/eunsu.png',
-    github: 'https://github.com/',
-    email: 'eunsu@example.com',
-    portfolio: 'https://example.com/eunsu',
+    github: 'https://github.com/myyonop',
+    email: 'kreideprinz913@gmail.com ',
+    portfolio: 'https://web-s-portfolio.vercel.app',
   },
 ]
 
 const TEAM_PROJECT: TeamProject = {
   title: 'Clerk App Project',
   description:
-    'Clerk 인증을 이용한 포트폴리오 관리 웹앱입니다. 로그인, 학습 내역, 대시보드, 팀 페이지 등으로 구성된 협업 프로젝트로, 개인 학습과 팀 작업을 한 화면에서 확인할 수 있도록 설계했습니다.',
-  link: 'https://github.com/bora120/clerk-app',
+    '독서리뷰플랫폼을 구현한 팀 프로젝트 입니다. 로그인을 할 때 2단계 보안 인증을 적용하고, 비밀번호 강도를 분석 기능을 넣었습니다.',
+  link: 'http://xn--book-review-black-five-cq04g.vercel.app/',
   image: '/team/project-preview.png',
 }
 
